@@ -30,6 +30,19 @@ export default function CreateSurveyPage() {
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
+  const [logo, setLogo] = useState("");
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500 * 1024) {
+      alert("Image must be under 500KB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setLogo(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const addQuestion = () => {
     setQuestions([
@@ -76,7 +89,7 @@ export default function CreateSurveyPage() {
     const res = await fetch("/api/surveys", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, questions }),
+      body: JSON.stringify({ title, description, questions, logo }),
     });
     if (res.ok) {
       router.push("/dashboard");
@@ -117,6 +130,31 @@ export default function CreateSurveyPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
             />
+
+            {/* Logo / Banner Upload */}
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo / Banner (optional)</label>
+              {logo ? (
+                <div className="relative inline-block">
+                  <img src={logo} alt="Logo" className="max-h-24 rounded-lg border border-gray-200 shadow-sm" />
+                  <button
+                    type="button"
+                    onClick={() => setLogo("")}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 shadow"
+                  >
+                    x
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm text-gray-500">Click to upload logo or banner (max 500KB)</span>
+                  <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                </label>
+              )}
+            </div>
           </div>
 
           {questions.map((q, qIndex) => (

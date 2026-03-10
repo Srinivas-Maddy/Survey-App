@@ -15,6 +15,7 @@ interface Survey {
   title: string;
   description: string;
   questions: Question[];
+  logo?: string;
 }
 
 export default function PublicSurveyPage({ params }: { params: Promise<{ publicId: string }> }) {
@@ -179,14 +180,22 @@ export default function PublicSurveyPage({ params }: { params: Promise<{ publicI
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-5">
         {/* Header Card */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-          <div className="h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+          {survey!.logo ? (
+            <div className="w-full">
+              <img src={survey!.logo} alt="Survey banner" className="w-full max-h-40 object-contain bg-gray-50" />
+            </div>
+          ) : (
+            <div className="h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+          )}
           <div className="p-8">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
+              {!survey!.logo && (
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+              )}
               <h1 className="text-2xl font-bold text-gray-900">{survey!.title}</h1>
             </div>
             {survey!.description && (

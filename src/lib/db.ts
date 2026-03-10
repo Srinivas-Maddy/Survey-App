@@ -16,10 +16,16 @@ const cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: nul
 global.mongooseCache = cached;
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn;
-  if (!cached.promise) {
+  if (cached.conn && mongoose.connection.readyState === 1) return cached.conn;
+  if (!cached.promise || mongoose.connection.readyState === 0) {
     cached.promise = mongoose.connect(MONGODB_URI);
   }
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    cached.conn = null;
+    throw e;
+  }
   return cached.conn;
 }

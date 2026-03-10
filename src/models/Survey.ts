@@ -16,6 +16,7 @@ export interface ISurvey extends Document {
   questions: IQuestion[];
   publicId: string;
   isActive: boolean;
+  logo: string;
   createdAt: Date;
 }
 
@@ -35,6 +36,7 @@ const SurveySchema = new Schema<ISurvey>({
   questions: [QuestionSchema],
   publicId: { type: String, required: true, unique: true },
   isActive: { type: Boolean, default: true },
+  logo: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
 });
 

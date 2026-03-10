@@ -24,13 +24,14 @@ export async function POST(req: NextRequest) {
     if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     await connectDB();
-    const { title, description, questions } = await req.json();
+    const { title, description, questions, logo } = await req.json();
 
     const survey = await Survey.create({
       title,
       description,
       userId: auth.userId,
       questions,
+      logo: logo || "",
       publicId: uuidv4().slice(0, 8),
     });
 

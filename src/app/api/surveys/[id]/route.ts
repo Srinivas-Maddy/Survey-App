@@ -29,11 +29,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await connectDB();
     const { id } = await params;
-    const { title, description, questions } = await req.json();
+    const { title, description, questions, logo } = await req.json();
 
     const survey = await Survey.findOneAndUpdate(
       { _id: id, userId: auth.userId },
-      { title, description, questions },
+      { title, description, questions, logo: logo || "" },
       { new: true }
     );
     if (!survey) return NextResponse.json({ error: "Not found" }, { status: 404 });
