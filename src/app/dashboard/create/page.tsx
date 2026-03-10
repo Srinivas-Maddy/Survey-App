@@ -15,8 +15,8 @@ interface Question {
 const QUESTION_TYPES = [
   { value: "text", label: "Short Text" },
   { value: "textarea", label: "Long Text" },
-  { value: "radio", label: "Multiple Choice" },
-  { value: "checkbox", label: "Checkboxes" },
+  { value: "radio", label: "Single Choice" },
+  { value: "checkbox", label: "Multiple Choice" },
   { value: "select", label: "Dropdown" },
   { value: "number", label: "Number" },
   { value: "date", label: "Date" },
