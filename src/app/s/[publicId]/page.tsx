@@ -3,7 +3,7 @@ import { useEffect, useState, use } from "react";
 
 interface Question {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno";
+  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating";
   label: string;
   required: boolean;
   options?: string[];
@@ -431,6 +431,75 @@ export default function PublicSurveyPage({ params }: { params: Promise<{ publicI
                       </svg>
                       No
                     </button>
+                  </div>
+                )}
+
+                {q.type === "image" && (
+                  <div>
+                    {answers[q.id] ? (
+                      <div className="relative inline-block">
+                        <img src={answers[q.id] as string} alt="Uploaded" className="max-h-48 rounded-xl border border-gray-200 shadow-sm" />
+                        <button
+                          type="button"
+                          onClick={() => updateAnswer(q.id, "")}
+                          className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 shadow"
+                        >
+                          x
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center gap-3 px-6 py-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition">
+                        <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm text-gray-500 font-medium">Click to upload an image</span>
+                        <span className="text-xs text-gray-400">Max 500KB</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (file.size > 500 * 1024) { alert("Image must be under 500KB"); return; }
+                            const reader = new FileReader();
+                            reader.onload = () => updateAnswer(q.id, reader.result as string);
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {q.type === "rating" && (
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => updateAnswer(q.id, String(star))}
+                        className="transition-all duration-200 hover:scale-110"
+                      >
+                        <svg
+                          className={`w-10 h-10 ${
+                            Number(answers[q.id]) >= star
+                              ? "text-yellow-400 fill-yellow-400 drop-shadow-md"
+                              : "text-gray-300 fill-gray-100 hover:text-yellow-300 hover:fill-yellow-100"
+                          } transition-colors`}
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.5}
+                        >
+                          <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                      </button>
+                    ))}
+                    {answers[q.id] && (
+                      <span className="flex items-center ml-2 text-sm font-medium text-gray-500">
+                        {answers[q.id]} / 5
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 interface Question {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno";
+  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating";
   label: string;
   required: boolean;
   options: string[];
@@ -22,6 +22,8 @@ const QUESTION_TYPES = [
   { value: "date", label: "Date" },
   { value: "list", label: "List (Product Names)" },
   { value: "yesno", label: "Yes / No" },
+  { value: "image", label: "Image Upload" },
+  { value: "rating", label: "Rating (1-5 Stars)" },
 ];
 
 export default function CreateSurveyPage() {
