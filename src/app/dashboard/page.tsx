@@ -18,6 +18,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
+  const [qrModal, setQrModal] = useState<{ qrDataUrl: string; publicUrl: string; title: string } | null>(null);
+  const [qrLoading, setQrLoading] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -53,6 +55,26 @@ export default function DashboardPage() {
     navigator.clipboard.writeText(`${window.location.origin}/s/${publicId}`);
     setCopied(publicId);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const showQrCode = async (surveyId: string) => {
+    setQrLoading(surveyId);
+    try {
+      const res = await fetch(`/api/surveys/${surveyId}/qrcode`);
+      if (res.ok) {
+        const data = await res.json();
+        setQrModal(data);
+      }
+    } catch { /* ignore */ }
+    setQrLoading(null);
+  };
+
+  const downloadQr = () => {
+    if (!qrModal) return;
+    const link = document.createElement("a");
+    link.download = `${qrModal.title.replace(/[^a-zA-Z0-9]/g, "_")}_QR.png`;
+    link.href = qrModal.qrDataUrl;
+    link.click();
   };
 
   if (loading)
@@ -286,6 +308,20 @@ export default function DashboardPage() {
                         {copied === survey.publicId ? "Copied!" : "Share"}
                       </button>
                       <button
+                        onClick={() => showQrCode(survey._id)}
+                        disabled={qrLoading === survey._id}
+                        className="flex items-center gap-1 text-sm px-3 py-1.5 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 font-medium transition disabled:opacity-50"
+                      >
+                        {qrLoading === survey._id ? (
+                          <div className="w-3.5 h-3.5 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                          </svg>
+                        )}
+                        QR Code
+                      </button>
+                      <button
                         onClick={() => handleToggle(survey._id)}
                         className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg font-medium transition ${
                           survey.isActive
@@ -315,6 +351,41 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* QR Code Modal */}
+      {qrModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setQrModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
+              <h3 className="text-lg font-bold">QR Code</h3>
+              <p className="text-indigo-100 text-sm mt-1 truncate">{qrModal.title}</p>
+            </div>
+            <div className="p-6 flex flex-col items-center">
+              <div className="bg-white p-3 rounded-xl border-2 border-gray-100 shadow-sm">
+                <img src={qrModal.qrDataUrl} alt="QR Code" className="w-56 h-56" />
+              </div>
+              <p className="text-xs text-gray-400 mt-3 text-center break-all">{qrModal.publicUrl}</p>
+              <div className="flex gap-3 mt-5 w-full">
+                <button
+                  onClick={downloadQr}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition shadow-lg shadow-indigo-200"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download
+                </button>
+                <button
+                  onClick={() => setQrModal(null)}
+                  className="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
