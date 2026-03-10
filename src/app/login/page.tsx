@@ -1,7 +1,50 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+const SLIDES = [
+  {
+    title: "Create Surveys Easily",
+    description: "Build professional surveys with multiple question types — text, ratings, images, yes/no, and more.",
+    icon: (
+      <svg className="w-16 h-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+    gradient: "from-indigo-500 to-blue-600",
+  },
+  {
+    title: "Share With Anyone",
+    description: "Generate public links and share your surveys via email, WhatsApp, or social media — no login required for respondents.",
+    icon: (
+      <svg className="w-16 h-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+      </svg>
+    ),
+    gradient: "from-purple-500 to-pink-600",
+  },
+  {
+    title: "Real-Time Analytics",
+    description: "Track responses with beautiful charts, donut graphs, and detailed breakdowns as they come in.",
+    icon: (
+      <svg className="w-16 h-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+    gradient: "from-emerald-500 to-teal-600",
+  },
+  {
+    title: "Manage Storage",
+    description: "Monitor your database usage, clean up old responses, and manage your data efficiently with built-in admin tools.",
+    icon: (
+      <svg className="w-16 h-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+      </svg>
+    ),
+    gradient: "from-amber-500 to-orange-600",
+  },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,6 +52,16 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 4000);
+    return () => clearInterval(timer);
+  }, [nextSlide]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,27 +83,69 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left Panel - Branding & Support */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 text-white flex-col justify-between p-12">
-        <div>
+      {/* Left Panel - Slider & Support */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 text-white flex-col justify-between p-12 relative overflow-hidden">
+        {/* Animated background circles */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/5 rounded-full blur-xl" />
+          <div className="absolute bottom-20 right-10 w-56 h-56 bg-white/5 rounded-full blur-xl" />
+          <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-white/5 rounded-full blur-xl" />
+        </div>
+
+        <div className="relative z-10">
           <h1 className="text-3xl font-bold">Survey App</h1>
           <p className="text-indigo-200 mt-1">Create. Share. Analyze.</p>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">Welcome back!</h2>
-          <p className="text-indigo-200 text-lg leading-relaxed">
-            Log in to manage your surveys, track responses in real-time, and unlock powerful analytics.
-          </p>
-          <div className="flex gap-3">
-            <div className="w-12 h-1 bg-white/40 rounded-full" />
-            <div className="w-12 h-1 bg-white/20 rounded-full" />
-            <div className="w-12 h-1 bg-white/20 rounded-full" />
+        {/* Slider */}
+        <div className="relative z-10 flex-1 flex flex-col justify-center">
+          <div className="relative h-64">
+            {SLIDES.map((slide, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                  index === currentSlide
+                    ? "opacity-100 translate-x-0"
+                    : index < currentSlide
+                    ? "opacity-0 -translate-x-12"
+                    : "opacity-0 translate-x-12"
+                }`}
+              >
+                <div className={`bg-gradient-to-br ${slide.gradient} rounded-2xl p-8 shadow-2xl shadow-black/20 h-full flex flex-col justify-center`}>
+                  <div className="flex items-start gap-5">
+                    <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 flex-shrink-0">
+                      {slide.icon}
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-3">{slide.title}</h2>
+                      <p className="text-white/80 text-base leading-relaxed">
+                        {slide.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Slider dots */}
+          <div className="flex gap-2 mt-6 justify-center">
+            {SLIDES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  index === currentSlide
+                    ? "w-8 bg-white"
+                    : "w-2 bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            ))}
           </div>
         </div>
 
         {/* Support Section */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 space-y-4">
+        <div className="relative z-10 bg-white/10 backdrop-blur-sm rounded-xl p-6 space-y-4">
           <h3 className="font-semibold text-lg">Need Help?</h3>
           <p className="text-indigo-200 text-sm">
             Our support team is available 24/7 to assist you.
