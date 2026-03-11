@@ -33,7 +33,7 @@ export default function CreateSurveyPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
   const [logo, setLogo] = useState("");
-  const [typePickerOpen, setTypePickerOpen] = useState<number | null>(null);
+
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -311,66 +311,38 @@ export default function CreateSurveyPage() {
 
                   {/* Type selector + Required toggle */}
                   <div className="flex gap-3 items-center mb-4 flex-wrap">
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setTypePickerOpen(typePickerOpen === qIndex ? null : qIndex)}
-                        className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:border-indigo-300 hover:bg-indigo-50/30 transition"
+                    <div className="flex items-center gap-2">
+                      <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${typeInfo.color}`}>
+                        {typeInfo.icon}
+                      </span>
+                      <select
+                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition bg-white cursor-pointer"
+                        value={q.type}
+                        onChange={(e) => {
+                          const newType = e.target.value as Question["type"];
+                          updateQuestion(qIndex, {
+                            type: newType,
+                            options: needsOptions(newType) ? (q.options.length ? q.options : [""]) : [],
+                            hideNextOnYes: newType === "yesno" ? true : q.hideNextOnYes,
+                          });
+                        }}
                       >
-                        <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${typeInfo.color}`}>
-                          {typeInfo.icon}
-                        </span>
-                        {typeInfo.label}
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      {typePickerOpen === qIndex && (
-                        <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 p-3 z-20 w-72 grid grid-cols-2 gap-1.5">
-                          {QUESTION_TYPES.map((t) => (
-                            <button
-                              key={t.value}
-                              type="button"
-                              onClick={() => {
-                                const newType = t.value as Question["type"];
-                                updateQuestion(qIndex, {
-                                  type: newType,
-                                  options: needsOptions(newType) ? (q.options.length ? q.options : [""]) : [],
-                                  hideNextOnYes: newType === "yesno" ? true : q.hideNextOnYes,
-                                });
-                                setTypePickerOpen(null);
-                              }}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition ${
-                                q.type === t.value
-                                  ? "bg-indigo-50 text-indigo-600 border border-indigo-200"
-                                  : "hover:bg-gray-50 text-gray-600 border border-transparent"
-                              }`}
-                            >
-                              <span className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold ${t.color}`}>
-                                {t.icon}
-                              </span>
-                              {t.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                        {QUESTION_TYPES.map((t) => (
+                          <option key={t.value} value={t.value}>
+                            {t.icon} {t.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none group">
-                      <div className={`w-9 h-5 rounded-full transition-colors duration-200 flex items-center ${
-                        q.required ? "bg-indigo-500" : "bg-gray-200"
-                      }`}>
-                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-                          q.required ? "translate-x-4.5 ml-[18px]" : "translate-x-0.5 ml-[2px]"
-                        }`} />
-                      </div>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={q.required}
                         onChange={(e) => updateQuestion(qIndex, { required: e.target.checked })}
-                        className="sr-only"
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                       />
-                      <span className="text-gray-500 group-hover:text-gray-700 transition">Required</span>
+                      <span className="text-gray-500">Required</span>
                     </label>
                   </div>
 
@@ -440,33 +412,6 @@ export default function CreateSurveyPage() {
                     </div>
                   )}
 
-                  {/* Preview hint for non-option types */}
-                  {!needsOptions(q.type) && q.type !== "yesno" && (
-                    <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-100">
-                      <p className="text-xs text-gray-400 mb-2">Preview</p>
-                      {q.type === "text" && <div className="h-10 bg-white border border-gray-200 rounded-lg" />}
-                      {q.type === "textarea" && <div className="h-20 bg-white border border-gray-200 rounded-lg" />}
-                      {q.type === "number" && <div className="h-10 w-32 bg-white border border-gray-200 rounded-lg flex items-center px-3 text-sm text-gray-300">123</div>}
-                      {q.type === "date" && <div className="h-10 w-44 bg-white border border-gray-200 rounded-lg flex items-center px-3 text-sm text-gray-300">mm/dd/yyyy</div>}
-                      {q.type === "image" && (
-                        <div className="h-20 bg-white border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-sm text-gray-300">
-                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          Image upload area
-                        </div>
-                      )}
-                      {q.type === "rating" && (
-                        <div className="flex gap-1.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <svg key={star} className={`w-7 h-7 ${star <= 3 ? "text-amber-400" : "text-gray-200"}`} fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             );
@@ -501,10 +446,6 @@ export default function CreateSurveyPage() {
         </form>
       </main>
 
-      {/* Click-away to close type picker */}
-      {typePickerOpen !== null && (
-        <div className="fixed inset-0 z-10" onClick={() => setTypePickerOpen(null)} />
-      )}
     </div>
   );
 }
