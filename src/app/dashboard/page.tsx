@@ -275,74 +275,80 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => router.push(`/dashboard/survey/${survey._id}`)}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        Results
-                      </button>
-                      <button
-                        onClick={() => router.push(`/dashboard/edit/${survey._id}`)}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 font-medium transition"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => copyLink(survey.publicId)}
-                        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg font-medium transition ${
-                          copied === survey.publicId
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-violet-50 text-violet-600 hover:bg-violet-100"
-                        }`}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        {copied === survey.publicId ? "Copied!" : "Share"}
-                      </button>
-                      <button
-                        onClick={() => showQrCode(survey._id)}
-                        disabled={qrLoading === survey._id}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 font-medium transition disabled:opacity-50"
-                      >
-                        {qrLoading === survey._id ? (
-                          <div className="w-3.5 h-3.5 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
-                        ) : (
+                    <div className="space-y-2">
+                      {/* Primary actions row */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => router.push(`/dashboard/survey/${survey._id}`)}
+                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition"
+                        >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
-                        )}
-                        QR Code
-                      </button>
-                      <button
-                        onClick={() => handleToggle(survey._id)}
-                        className={`flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg font-medium transition ${
-                          survey.isActive
-                            ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                            : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                        }`}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={survey.isActive ? "M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" : "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"} />
-                        </svg>
-                        {survey.isActive ? "Pause" : "Resume"}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(survey._id)}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium transition"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete
-                      </button>
+                          Results
+                        </button>
+                        <button
+                          onClick={() => router.push(`/dashboard/edit/${survey._id}`)}
+                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 font-medium transition"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => copyLink(survey.publicId)}
+                          className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
+                            copied === survey.publicId
+                              ? "bg-emerald-50 text-emerald-600"
+                              : "bg-violet-50 text-violet-600 hover:bg-violet-100"
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                          {copied === survey.publicId ? "Copied!" : "Share"}
+                        </button>
+                      </div>
+                      {/* Secondary actions row */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => showQrCode(survey._id)}
+                          disabled={qrLoading === survey._id}
+                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 font-medium transition disabled:opacity-50"
+                        >
+                          {qrLoading === survey._id ? (
+                            <div className="w-3.5 h-3.5 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                          )}
+                          QR Code
+                        </button>
+                        <button
+                          onClick={() => handleToggle(survey._id)}
+                          className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
+                            survey.isActive
+                              ? "bg-orange-50 text-orange-600 hover:bg-orange-100"
+                              : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={survey.isActive ? "M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" : "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"} />
+                          </svg>
+                          {survey.isActive ? "Pause" : "Resume"}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(survey._id)}
+                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium transition"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
