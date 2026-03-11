@@ -9,6 +9,7 @@ interface Survey {
   publicId: string;
   isActive: boolean;
   questions: { id: string }[];
+  responseCount: number;
   createdAt: string;
 }
 
@@ -89,6 +90,7 @@ export default function DashboardPage() {
 
   const activeSurveys = surveys.filter((s) => s.isActive).length;
   const totalQuestions = surveys.reduce((sum, s) => sum + s.questions.length, 0);
+  const totalResponses = surveys.reduce((sum, s) => sum + (s.responseCount || 0), 0);
 
   const colors = [
     "from-indigo-500 to-blue-500",
@@ -135,6 +137,12 @@ export default function DashboardPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {survey.questions.length} questions
+            </span>
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+              </svg>
+              <span className={survey.responseCount > 0 ? "text-indigo-500 font-medium" : ""}>{survey.responseCount} responses</span>
             </span>
             <span className="flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +286,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -315,6 +323,19 @@ export default function DashboardPage() {
               <div>
                 <p className="text-2xl font-bold text-gray-900">{totalQuestions}</p>
                 <p className="text-sm text-gray-500">Total Questions</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{totalResponses}</p>
+                <p className="text-sm text-gray-500">Total Responses</p>
               </div>
             </div>
           </div>
