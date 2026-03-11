@@ -90,6 +90,139 @@ export default function DashboardPage() {
   const activeSurveys = surveys.filter((s) => s.isActive).length;
   const totalQuestions = surveys.reduce((sum, s) => sum + s.questions.length, 0);
 
+  const colors = [
+    "from-indigo-500 to-blue-500",
+    "from-purple-500 to-pink-500",
+    "from-emerald-500 to-teal-500",
+    "from-amber-500 to-orange-500",
+    "from-rose-500 to-red-500",
+    "from-cyan-500 to-blue-500",
+  ];
+
+  const renderSurveyCard = (survey: Survey, index: number) => {
+    const colorClass = colors[index % colors.length];
+    return (
+      <div
+        key={survey._id}
+        className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300 group ${
+          survey.isActive ? "border-gray-100" : "border-gray-200 opacity-75"
+        }`}
+      >
+        <div className={`h-2 bg-gradient-to-r ${survey.isActive ? colorClass : "from-gray-300 to-gray-400"}`} />
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className={`text-lg font-bold transition ${survey.isActive ? "text-gray-900 group-hover:text-indigo-600" : "text-gray-500"}`}>
+              {survey.title}
+            </h3>
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-medium ${
+                survey.isActive
+                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  : "bg-gray-100 text-gray-500 border border-gray-200"
+              }`}
+            >
+              {survey.isActive ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+            {survey.description || "No description provided"}
+          </p>
+
+          <div className="flex items-center gap-4 text-xs text-gray-400 mb-5">
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {survey.questions.length} questions
+            </span>
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {new Date(survey.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => router.push(`/dashboard/survey/${survey._id}`)}
+                className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Results
+              </button>
+              <button
+                onClick={() => router.push(`/dashboard/edit/${survey._id}`)}
+                className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 font-medium transition"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+              <button
+                onClick={() => copyLink(survey.publicId)}
+                className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
+                  copied === survey.publicId
+                    ? "bg-emerald-50 text-emerald-600"
+                    : "bg-violet-50 text-violet-600 hover:bg-violet-100"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                {copied === survey.publicId ? "Copied!" : "Share"}
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => showQrCode(survey._id)}
+                disabled={qrLoading === survey._id}
+                className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 font-medium transition disabled:opacity-50"
+              >
+                {qrLoading === survey._id ? (
+                  <div className="w-3.5 h-3.5 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                  </svg>
+                )}
+                QR Code
+              </button>
+              <button
+                onClick={() => handleToggle(survey._id)}
+                className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
+                  survey.isActive
+                    ? "bg-orange-50 text-orange-600 hover:bg-orange-100"
+                    : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={survey.isActive ? "M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" : "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"} />
+                </svg>
+                {survey.isActive ? "Pause" : "Resume"}
+              </button>
+              <button
+                onClick={() => handleDelete(survey._id)}
+                className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium transition"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       {/* Navbar */}
@@ -219,141 +352,50 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {surveys.map((survey, index) => {
-              const colors = [
-                "from-indigo-500 to-blue-500",
-                "from-purple-500 to-pink-500",
-                "from-emerald-500 to-teal-500",
-                "from-amber-500 to-orange-500",
-                "from-rose-500 to-red-500",
-                "from-cyan-500 to-blue-500",
-              ];
-              const colorClass = colors[index % colors.length];
-
-              return (
-                <div
-                  key={survey._id}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group"
-                >
-                  {/* Color Strip */}
-                  <div className={`h-2 bg-gradient-to-r ${colorClass}`} />
-
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">
-                        {survey.title}
-                      </h3>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          survey.isActive
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                            : "bg-gray-100 text-gray-500 border border-gray-200"
-                        }`}
-                      >
-                        {survey.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                      {survey.description || "No description provided"}
-                    </p>
-
-                    <div className="flex items-center gap-4 text-xs text-gray-400 mb-5">
-                      <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {survey.questions.length} questions
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        {new Date(survey.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      {/* Primary actions row */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <button
-                          onClick={() => router.push(`/dashboard/survey/${survey._id}`)}
-                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                          Results
-                        </button>
-                        <button
-                          onClick={() => router.push(`/dashboard/edit/${survey._id}`)}
-                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 font-medium transition"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => copyLink(survey.publicId)}
-                          className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
-                            copied === survey.publicId
-                              ? "bg-emerald-50 text-emerald-600"
-                              : "bg-violet-50 text-violet-600 hover:bg-violet-100"
-                          }`}
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                          </svg>
-                          {copied === survey.publicId ? "Copied!" : "Share"}
-                        </button>
-                      </div>
-                      {/* Secondary actions row */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <button
-                          onClick={() => showQrCode(survey._id)}
-                          disabled={qrLoading === survey._id}
-                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 font-medium transition disabled:opacity-50"
-                        >
-                          {qrLoading === survey._id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
-                          ) : (
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
-                          )}
-                          QR Code
-                        </button>
-                        <button
-                          onClick={() => handleToggle(survey._id)}
-                          className={`flex items-center justify-center gap-1.5 text-sm px-3 py-2 rounded-lg font-medium transition ${
-                            survey.isActive
-                              ? "bg-orange-50 text-orange-600 hover:bg-orange-100"
-                              : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                          }`}
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={survey.isActive ? "M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" : "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"} />
-                          </svg>
-                          {survey.isActive ? "Pause" : "Resume"}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(survey._id)}
-                          className="flex items-center justify-center gap-1.5 text-sm px-3 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium transition"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
+          <div className="space-y-8">
+            {/* Active Surveys */}
+            {surveys.filter((s) => s.isActive).length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   </div>
+                  <h4 className="text-lg font-semibold text-gray-800">Active Surveys</h4>
+                  <span className="text-xs font-medium bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">
+                    {surveys.filter((s) => s.isActive).length}
+                  </span>
                 </div>
-              );
-            })}
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {surveys.filter((s) => s.isActive).map((survey, index) => {
+                    return renderSurveyCard(survey, index);
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Inactive Surveys */}
+            {surveys.filter((s) => !s.isActive).length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-500">Inactive Surveys</h4>
+                  <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full">
+                    {surveys.filter((s) => !s.isActive).length}
+                  </span>
+                </div>
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {surveys.filter((s) => !s.isActive).map((survey, index) => {
+                    return renderSurveyCard(survey, index);
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
