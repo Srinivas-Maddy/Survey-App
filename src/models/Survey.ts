@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IQuestion {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating";
+  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating" | "phone" | "email";
   label: string;
   required: boolean;
   options?: string[];
@@ -22,7 +22,7 @@ export interface ISurvey extends Document {
 
 const QuestionSchema = new Schema<IQuestion>({
   id: { type: String, required: true },
-  type: { type: String, required: true, enum: ["text", "textarea", "radio", "checkbox", "select", "number", "date", "list", "yesno", "image", "rating"] },
+  type: { type: String, required: true, enum: ["text", "textarea", "radio", "checkbox", "select", "number", "date", "list", "yesno", "image", "rating", "phone", "email"] },
   label: { type: String, required: true },
   required: { type: Boolean, default: false },
   options: [String],

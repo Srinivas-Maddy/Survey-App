@@ -3,7 +3,7 @@ import { useEffect, useState, use } from "react";
 
 interface Question {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating";
+  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating" | "phone" | "email";
   label: string;
   required: boolean;
   options?: string[];
@@ -301,6 +301,27 @@ export default function PublicSurveyPage({ params }: { params: Promise<{ publicI
                     type="date"
 
                     className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    value={(answers[q.id] as string) || ""}
+                    onChange={(e) => updateAnswer(q.id, e.target.value)}
+                  />
+                )}
+
+                {q.type === "phone" && (
+                  <input
+                    type="tel"
+                    placeholder="Enter phone number..."
+                    pattern="[0-9+\-\s()]*"
+                    className="w-full border-b-2 border-gray-200 pb-2 text-gray-700 placeholder-gray-300 focus:outline-none focus:border-indigo-500 transition-colors"
+                    value={(answers[q.id] as string) || ""}
+                    onChange={(e) => updateAnswer(q.id, e.target.value)}
+                  />
+                )}
+
+                {q.type === "email" && (
+                  <input
+                    type="email"
+                    placeholder="Enter email address..."
+                    className="w-full border-b-2 border-gray-200 pb-2 text-gray-700 placeholder-gray-300 focus:outline-none focus:border-indigo-500 transition-colors"
                     value={(answers[q.id] as string) || ""}
                     onChange={(e) => updateAnswer(q.id, e.target.value)}
                   />

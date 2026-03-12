@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 interface Question {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating";
+  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "number" | "date" | "list" | "yesno" | "image" | "rating" | "phone" | "email";
   label: string;
   required: boolean;
   options: string[];
@@ -24,6 +24,8 @@ const QUESTION_TYPES = [
   { value: "yesno", label: "Yes / No", icon: "✓✗", color: "bg-amber-100 text-amber-600 border-amber-200" },
   { value: "image", label: "Image Upload", icon: "🖼", color: "bg-pink-100 text-pink-600 border-pink-200" },
   { value: "rating", label: "Rating", icon: "★", color: "bg-orange-100 text-orange-600 border-orange-200" },
+  { value: "phone", label: "Phone Number", icon: "📞", color: "bg-green-100 text-green-600 border-green-200" },
+  { value: "email", label: "Email", icon: "✉", color: "bg-rose-100 text-rose-600 border-rose-200" },
 ];
 
 export default function CreateSurveyPage() {

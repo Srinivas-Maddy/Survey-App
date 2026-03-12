@@ -1,0 +1,34 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Survey App Test Suite" verbose="1">
+
+    <test name="Authentication Tests">
+        <classes>
+            <class name="com.surveyapp.tests.AuthTest"/>
+        </classes>
+    </test>
+
+    <test name="Dashboard Tests">
+        <classes>
+            <class name="com.surveyapp.tests.DashboardTest"/>
+        </classes>
+    </test>
+
+    <test name="Survey CRUD Tests">
+        <classes>
+            <class name="com.surveyapp.tests.SurveyCrudTest"/>
+        </classes>
+    </test>
+
+    <test name="Public Form Tests">
+        <classes>
+            <class name="com.surveyapp.tests.PublicFormTest"/>
+        </classes>
+    </test>
+
+    <test name="API Tests">
+        <classes>
+            <class name="com.surveyapp.tests.ApiTest"/>
+        </classes>
+    </test>
+
+</suite>
