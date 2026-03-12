@@ -182,7 +182,7 @@ export default function PublicSurveyPage({ params }: { params: Promise<{ publicI
         <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
           {survey!.logo ? (
             <div className="w-full">
-              <img src={survey!.logo} alt="Survey banner" className="w-full max-h-40 object-contain bg-gray-50" />
+              <img src={survey!.logo} alt="Survey banner" className="w-full h-48 object-cover" />
             </div>
           ) : (
             <div className="h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
