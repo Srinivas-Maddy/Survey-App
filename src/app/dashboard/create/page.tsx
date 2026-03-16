@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import SURVEY_TEMPLATES from "@/lib/templates";
@@ -29,7 +29,15 @@ const QUESTION_TYPES = [
   { value: "email", label: "Email", icon: "✉", color: "bg-rose-100 text-rose-600 border-rose-200" },
 ];
 
-export default function CreateSurveyPage() {
+export default function CreateSurveyPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-gray-50"><div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin" /></div>}>
+      <CreateSurveyPage />
+    </Suspense>
+  );
+}
+
+function CreateSurveyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
