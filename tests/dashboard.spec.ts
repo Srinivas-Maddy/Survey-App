@@ -21,9 +21,9 @@ test.describe("Dashboard", () => {
   });
 
   test("Dashboard loads with stats cards", async ({ page }) => {
-    await expect(page.locator("text=Total Surveys")).toBeVisible();
-    await expect(page.locator("text=Active")).toBeVisible();
-    await expect(page.locator("text=Questions")).toBeVisible();
+    await expect(page.getByText("Total Surveys", { exact: true })).toBeVisible();
+    await expect(page.getByText("Active", { exact: true })).toBeVisible();
+    await expect(page.getByText("Questions", { exact: true })).toBeVisible();
     await expect(page.getByText("Responses", { exact: true })).toBeVisible();
   });
 

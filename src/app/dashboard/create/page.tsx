@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import SURVEY_TEMPLATES from "@/lib/templates";
 
 interface Question {
   id: string;
@@ -30,11 +31,34 @@ const QUESTION_TYPES = [
 
 export default function CreateSurveyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
   const [logo, setLogo] = useState("");
+
+  // Load template if specified in URL
+  useEffect(() => {
+    const templateId = searchParams.get("template");
+    if (templateId) {
+      const template = SURVEY_TEMPLATES.find((t) => t.id === templateId);
+      if (template) {
+        setTitle(template.name);
+        setDescription(template.description);
+        setQuestions(
+          template.questions.map((q) => ({
+            id: uuidv4(),
+            type: q.type as Question["type"],
+            label: q.label,
+            required: q.required,
+            options: [...q.options],
+            hideNextOnYes: q.type === "yesno",
+          }))
+        );
+      }
+    }
+  }, [searchParams]);
 
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
