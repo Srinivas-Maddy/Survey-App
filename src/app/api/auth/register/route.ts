@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashed });
 
-    const token = signToken({ userId: user._id.toString(), email: user.email });
-    const response = NextResponse.json({ user: { id: user._id, name: user.name, email: user.email } });
+    const token = signToken({ userId: user._id.toString(), email: user.email, role: "admin", adminId: null });
+    const response = NextResponse.json({ user: { id: user._id, name: user.name, email: user.email, role: "admin" } });
     response.cookies.set("token", token, { httpOnly: true, path: "/", maxAge: 7 * 24 * 60 * 60 });
     return response;
   } catch (error) {

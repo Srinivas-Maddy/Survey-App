@@ -14,10 +14,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = signToken({ userId: user._id.toString(), email: user.email, role: user.role || "admin", adminId: user.adminId?.toString() || null });
-    const response = NextResponse.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role || "admin" } });
-    response.cookies.set("token", token, { httpOnly: true, path: "/", maxAge: 7 * 24 * 60 * 60 });
-    return response;
+    const token = signToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role || "admin",
+      adminId: user.adminId?.toString() || null,
+    });
+
+    return NextResponse.json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role || "admin" },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

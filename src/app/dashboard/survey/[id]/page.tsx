@@ -22,6 +22,8 @@ interface Survey {
 interface SurveyResponse {
   _id: string;
   answers: Record<string, string | string[]>;
+  collectionMethod?: "public" | "employee";
+  employeeName?: string | null;
   submittedAt: string;
 }
 
@@ -47,6 +49,11 @@ export default function SurveyDashboardPage({ params }: { params: Promise<{ id: 
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"analytics" | "responses">("analytics");
   const [copied, setCopied] = useState(false);
+  const [methodFilter, setMethodFilter] = useState<"all" | "public" | "employee">("all");
+  const [showAssign, setShowAssign] = useState(false);
+  const [employees, setEmployees] = useState<{ _id: string; name: string; email: string }[]>([]);
+  const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
+  const [assignLoading, setAssignLoading] = useState(false);
 
   useEffect(() => {
     fetch(`/api/surveys/${id}`)
@@ -58,6 +65,34 @@ export default function SurveyDashboardPage({ params }: { params: Promise<{ id: 
       })
       .catch(() => router.replace("/dashboard"));
   }, [id, router]);
+
+  const loadAssignments = async () => {
+    setAssignLoading(true);
+    try {
+      const [empRes, assignRes] = await Promise.all([
+        fetch("/api/employees").then((r) => r.json()),
+        fetch(`/api/assignments?surveyId=${id}`).then((r) => r.json()),
+      ]);
+      setEmployees(empRes.employees || []);
+      setAssignedIds(new Set((assignRes.assignments || []).map((a: { employeeId: { _id: string } }) => a.employeeId._id)));
+    } catch { /* ignore */ }
+    setAssignLoading(false);
+  };
+
+  const toggleAssignment = async (employeeId: string) => {
+    if (assignedIds.has(employeeId)) {
+      // Find and remove assignment
+      const assignRes = await fetch(`/api/assignments?surveyId=${id}`).then((r) => r.json());
+      const assignment = (assignRes.assignments || []).find((a: { employeeId: { _id: string } }) => a.employeeId._id === employeeId);
+      if (assignment) {
+        await fetch(`/api/assignments/${assignment._id}`, { method: "DELETE" });
+        setAssignedIds((prev) => { const s = new Set(prev); s.delete(employeeId); return s; });
+      }
+    } else {
+      await fetch("/api/assignments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ surveyId: id, employeeId }) });
+      setAssignedIds((prev) => new Set(prev).add(employeeId));
+    }
+  };
 
   const copyLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}/s/${survey!.publicId}`);
@@ -193,6 +228,60 @@ export default function SurveyDashboardPage({ params }: { params: Promise<{ id: 
             </div>
           </div>
         </div>
+
+        {/* Assign Employees */}
+        <div className="mb-4">
+          <button
+            onClick={() => { setShowAssign(!showAssign); if (!showAssign) loadAssignments(); }}
+            className="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+            {showAssign ? "Hide" : "Assign Employees"}
+          </button>
+          {showAssign && (
+            <div className="mt-3 bg-white rounded-xl border border-gray-200 p-4">
+              {assignLoading ? (
+                <div className="flex items-center gap-2 text-gray-400 text-sm"><div className="w-4 h-4 border-2 border-gray-200 border-t-indigo-600 rounded-full animate-spin" /> Loading...</div>
+              ) : employees.length === 0 ? (
+                <p className="text-sm text-gray-400">No employees yet. <button onClick={() => router.push("/dashboard/employees")} className="text-indigo-600 hover:underline">Add employees</button></p>
+              ) : (
+                <div className="space-y-2">
+                  {employees.map((emp) => (
+                    <label key={emp._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                      <input type="checkbox" checked={assignedIds.has(emp._id)} onChange={() => toggleAssignment(emp._id)}
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                      <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{emp.name.charAt(0).toUpperCase()}</div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-800">{emp.name}</p>
+                        <p className="text-xs text-gray-400">{emp.email}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Collection Method Summary */}
+        {responses.some((r) => r.collectionMethod === "employee") && (() => {
+          const publicCount = responses.filter((r) => r.collectionMethod !== "employee").length;
+          const employeeCount = responses.filter((r) => r.collectionMethod === "employee").length;
+          return (
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              <span className="text-sm text-gray-500">Collection:</span>
+              <button onClick={() => setMethodFilter("all")} className={`text-xs px-3 py-1.5 rounded-full font-medium transition ${methodFilter === "all" ? "bg-indigo-100 text-indigo-700 border border-indigo-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                All ({responses.length})
+              </button>
+              <button onClick={() => setMethodFilter("public")} className={`text-xs px-3 py-1.5 rounded-full font-medium transition ${methodFilter === "public" ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                Public ({publicCount})
+              </button>
+              <button onClick={() => setMethodFilter("employee")} className={`text-xs px-3 py-1.5 rounded-full font-medium transition ${methodFilter === "employee" ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                Employee ({employeeCount})
+              </button>
+            </div>
+          );
+        })()}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 bg-white rounded-xl p-1 border border-gray-200 w-fit">
@@ -471,14 +560,19 @@ export default function SurveyDashboardPage({ params }: { params: Promise<{ id: 
                 <p className="text-gray-500">No responses yet.</p>
               </div>
             ) : (
-              responses.map((r, i) => (
+              responses.filter((r) => methodFilter === "all" || (methodFilter === "employee" ? r.collectionMethod === "employee" : r.collectionMethod !== "employee")).map((r, i) => (
                 <div key={r._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
                   <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        {responses.length - i}
+                        {i + 1}
                       </div>
-                      <span className="text-white font-medium">Response #{responses.length - i}</span>
+                      <span className="text-white font-medium">Response #{i + 1}</span>
+                      {r.collectionMethod === "employee" ? (
+                        <span className="text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full font-semibold">{r.employeeName || "Employee"}</span>
+                      ) : (
+                        <span className="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Public</span>
+                      )}
                     </div>
                     <span className="text-white/70 text-sm flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
